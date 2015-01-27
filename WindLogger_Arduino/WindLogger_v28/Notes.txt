@@ -1,0 +1,10 @@
+Software categories:
+
+Setup (data field selection, sensor configuration)
+Data specific stuff (e.g. wind direction)
+Generic data routines (e.g. thermistor reading, temperature conversion)
+SD card r/w
+File create/read/update/delete
+RTC r/w
+Serial r/w
+Low-level device functions (interrupts, sleep, IO)

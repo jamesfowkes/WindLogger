@@ -115,6 +115,10 @@
 #include <avr/power.h>
 #include <PinChangeInt.h>  // For additional interrupts
 
+/* Local Application Libraries */
+
+#include "wind_direction.h"
+
 /************User variables and hardware allocation**********************************************/
 
 /******* SD CARD*************/
@@ -150,10 +154,6 @@ Rtc_Pcf8563 rtc;
 #define calibrate 7   // This controls if we are in serial calibrate mode or not
 #define batteryPin A1  // For monitoring the battery voltage
 #define directionPin A2  // For monitoring the wind direction
-
-/********** Wind Direction Storage *************/
-String WindDirection = " ";  // Empty to start with
-int windDirectionArray[] = {0,0,0,0,0,0,0,0};  //Holds the frequency of the wind direction
 
 /********** Thermistor Data Storage ************/
 #define thermistor A0  // This is the analog pin for the thermistor
@@ -228,6 +228,7 @@ boolean debugFlag = LOW;    // Set this if you want to be in debugging mode.
 String comma = ",";
 String date;        // The stored date from filename creation
 String newdate;     // The new date, read every time 
+String windDirection;
 
 // These are Char Strings - they are stored in program memory to save space in data memory
 // These are a mixutre of error messages and serial printed information
@@ -473,12 +474,8 @@ void loop()
     
     // *********** WIND DIRECTION **************************************
     // This can be checked every second and an average used
-    WindDirection = analyseWindDirection();
-    for(int i=0;i<8;i++)
-    {
-      //Resets the wind direction array
-      windDirectionArray[i]=0;
-    }
+    windDirection = getMostFrequentWindDirectionString();
+    resetWindDirection();
  
     // *********** TEMPERATURE *****************************************
     // Two versions of this - either with thermistor or I2C sensor (if connected)
@@ -522,7 +519,7 @@ void loop()
     dataString += comma;
     dataString += String(pulseCounter2Old); // Wind pulses 2
     dataString += comma;
-    dataString += WindDirection; // Wind direction
+    dataString += windDirection; // Wind direction
     dataString += comma;
     dataString += TempCStr;  // Temperature (Thermistor)
     dataString += comma;
@@ -595,15 +592,12 @@ void loop()
     Serial.flush();    // Force out the end of the serial data
   
     // Reset all the data collection values
-    WindDirection = analyseWindDirection();
+    windDirection = getMostFrequentWindDirectionString();
     Serial.print("Vane Direction:");
-    Serial.println(WindDirection);
+    Serial.println(windDirection);
     
-    for(int i=0;i<8;i++)
-    {
-      //Resets the wind direction array
-      windDirectionArray[i]=0;
-    }
+    resetWindDirection();
+    
     pulseCounter1 = 0;
     pulseCounter2 = 0;
     dataCounter = 0;  
@@ -909,110 +903,5 @@ void getData()
         str_buffer="";  // Reset the buffer to be filled again 
       }
     }
-  }
-}
-
-
-// ******** CALC DIRECTION *********
-// This routine takes in an analog read value and converts it into a wind direction
-// The Wind vane uses a series of resistors to show what direction the wind comes from
-// The different values are:
-//    R1 = 33k  => 238 N
-//    R2 = 8.2k => 562 NE
-//    R3 = 1k => 930 E
-//    R4 = 2.2k => 839 SE
-//    R5 = 3.9k => 736 S
-//    R6 = 16k => 394 SW
-//    R7 = 120k => 79 W
-//    R8 = 64.9k => 137 NW
-// This means we can 'band' the data into 8 bands
-
-void convertWindDirection(int reading)
-{
-  // The reading has come from the ADC
-  if(reading>0&&reading<100)
-  {
-    windDirectionArray[6]++;
-  }
-  else if(reading>100&&reading<200)
-  {
-    windDirectionArray[7]++;
-  }
-  else if(reading>200&&reading<350)
-  {
-    windDirectionArray[0]++; 
-  }
-  else if(reading>350&&reading<450)
-  {
-    windDirectionArray[5]++;
-  }  
-  else if(reading>450&&reading<650)
-  {
-    windDirectionArray[1]++;
-  }  
-  else if(reading>650&&reading<800)
-  {
-    windDirectionArray[4]++;
-  }
-  else if(reading>800&&reading<900)
-  {
-    windDirectionArray[3]++;
-  }
-  else if(reading>900&&reading<1024)
-  {
-    windDirectionArray[2]++;
-  }
-  else
-  {
-      // This is an error reading
-  }
-}
-
-String analyseWindDirection()
-{
-  // When a data sample period is over we need to see the most frequent wind direction.
-  // This needs to be converted back to a direction and stored on SD
-  
-  int data1 = windDirectionArray[0];
-  int maxIndex = 0;
-  // First need to find the maximum integer int he array
-  for(int i=1;i<8;i++)
-  {
-    if(data1<windDirectionArray[i])
-    {
-      data1=windDirectionArray[i];
-      maxIndex = i;
-    }
-  }
-  // Serial.println(maxIndex);  Testing
-    
-  
-  // Then convert that into the direction
-  switch(maxIndex)
-  {
-    case 0:
-      return("N");
-    break;
-    case 1:
-      return("NE");
-    break;    
-    case 2:
-      return("E");
-    break;  
-    case 3:
-      return("SE");
-    break;
-    case 4:
-      return("S");
-    break;  
-    case 5:
-      return("SW");
-    break;
-    case 6:
-      return("W");
-    break;
-    case 7:
-      return("NW");
-    break;
   }
 }
