@@ -9,6 +9,9 @@
  * www.re-innovation.co.uk
  */
 
+/* Arduino/AVR Includes */
+#include <avr/pgmspace.h>  // Library for putting data into program memory
+
 /*
  * Standard library includes
  */
@@ -52,6 +55,21 @@ void fillArray(T * array, T value, uint16_t size)
             array[index] = value;
         }
     }
+}
+
+// Get a string from program memory
+// This routine pulls the string stored in program memory so we can use it
+// It is temporaily stored in the stringBuffer
+#define MAX_STRING 80      // Sets the maximum length of string probably could be lower
+static char s_stringBuffer[MAX_STRING];  // A buffer to hold the string when pulled from program memory
+char* getProgmemString(const char* str) {
+	strcpy_P(s_stringBuffer, (char*)str);
+	return s_stringBuffer;
+}
+
+// Converts a decimal to BCD (binary coded decimal)
+char DecToBcd(char value){
+  return (value / 10 * 16 + value % 10);
 }
 
 // The getMaximum, getIndexOfMaximum templates must be instantiated for all expected values

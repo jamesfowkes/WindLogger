@@ -13,7 +13,7 @@
  * Arduino/C++ Library Includes
  */
  
-#include <arduino.h>
+#include <Arduino.h>
 #include <limits.h>
 
 /*
@@ -29,7 +29,17 @@
  
 static uint16_t s_windDirectionCount[] = {0,0,0,0,0,0,0,0};  //Holds the frequency of the wind direction
 
-static char * s_directions[] = {"N", "NE", "E", "SE", "S", "SW", "W", "NW"};
+/* To store direction strings in program memory, declare each string individually then store array */
+static const char s_n[] PROGMEM = "N";
+static const char s_ne[] PROGMEM = "NE";
+static const char s_e[] PROGMEM = "E";
+static const char s_se[] PROGMEM = "SE";
+static const char s_s[] PROGMEM = "S";
+static const char s_sw[] PROGMEM = "SW";
+static const char s_w[] PROGMEM = "W";
+static const char s_nw[] PROGMEM = "NW";
+
+static const char * s_directions[] = {s_n, s_ne, s_e, s_se, s_s, s_sw, s_w, s_nw};
     
 /* 
  * Public Functions
@@ -68,35 +78,35 @@ bool convertWindDirection(int reading)
     
     CARDINAL_DIRECTION eDirection = DIR_INVALID;
     
-    if(reading>0&&reading<100)
+    if(BETWEEN_INC(reading, 0, 99))
     {
         eDirection = DIR_W;
     }
-    else if(reading>100&&reading<200)
+    else if(BETWEEN_INC(reading, 100, 199))
     {
         eDirection = DIR_NW;
     }
-    else if(reading>200&&reading<350)
+    else if(BETWEEN_INC(reading, 200, 349))
     {
         eDirection = DIR_N;
     }
-    else if(reading>350&&reading<450)
+    else if(BETWEEN_INC(reading, 350, 449))
     {
         eDirection = DIR_SW;
     }  
-    else if(reading>450&&reading<650)
+    else if(BETWEEN_INC(reading, 450, 649))
     {
         eDirection = DIR_NE;
     }  
-    else if(reading>650&&reading<800)
+    else if(BETWEEN_INC(reading, 650, 799))
     {
         eDirection = DIR_S;
     }
-    else if(reading>800&&reading<900)
+    else if(BETWEEN_INC(reading, 800, 899))
     {
         eDirection = DIR_SE;
     }
-    else if(reading>900&&reading<1024)
+    else if(BETWEEN_INC(reading, 900, 1023))
     {
         eDirection = DIR_E;
     }
@@ -128,7 +138,7 @@ CARDINAL_DIRECTION getMostFrequentWindDirection(void)
 /******** getMostFrequentWindDirectionString *********
  * Returns the most frequent wind direction in the array as a string
  */
-char * getMostFrequentWindDirectionString(void)
+const char * getMostFrequentWindDirectionString(void)
 {
     CARDINAL_DIRECTION mostFrequentDirection = getMostFrequentWindDirection();
     return cardinalDirectionToString( mostFrequentDirection );
@@ -137,11 +147,11 @@ char * getMostFrequentWindDirectionString(void)
 /******** cardinalDirectionToString *********
  * Maps CARDINAL_DIRECTION enumeration to relevant string
  */
-char * cardinalDirectionToString(CARDINAL_DIRECTION eDirection)
+const char * cardinalDirectionToString(CARDINAL_DIRECTION eDirection)
 {
     if (eDirection < DIR_INVALID)
     {
-        return s_directions[eDirection];
+        return getProgmemString(s_directions[eDirection]);
     }
     else
     {
@@ -151,5 +161,5 @@ char * cardinalDirectionToString(CARDINAL_DIRECTION eDirection)
 
 void resetWindDirection(void)
 {
-    fillArray(s_windDirectionCount, (uint16_t)8, 0);
+    fillArray(s_windDirectionCount, (uint16_t)0, 8);
 }

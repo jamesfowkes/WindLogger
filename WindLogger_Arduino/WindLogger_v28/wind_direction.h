@@ -18,7 +18,7 @@ typedef enum cardinal_direction CARDINAL_DIRECTION;
 void resetWindDirection(void);
 bool convertWindDirection(int reading);
 CARDINAL_DIRECTION getMostFrequentWindDirection(void);
-char *  getMostFrequentWindDirectionString(void);
-char *  cardinalDirectionToString(CARDINAL_DIRECTION eDirection);
+const char *  getMostFrequentWindDirectionString(void);
+const char *  cardinalDirectionToString(CARDINAL_DIRECTION eDirection);
 
 #endif

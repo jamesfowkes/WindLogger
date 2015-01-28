@@ -1,17 +1,17 @@
 /********************************************************
-/****** Wind Logger based upon the:  ********************
-/****** DataDuino - Arduino DAQ UNIT ********************
-/****** by Matt Little **********************************
-/****** Date: 29/1/2014 *********************************
-/****** info@re-innovation.co.uk ************************
-/****** www.re-innovation.co.uk *************************
-/********************************************************
+****** Wind Logger based upon the:  *********************
+****** DataDuino - Arduino DAQ UNIT *********************
+****** by Matt Little ***********************************
+****** Date: 29/1/2014 **********************************
+****** info@re-innovation.co.uk *************************
+****** www.re-innovation.co.uk **************************
+*********************************************************
 
   See www.re-innovation.co.uk for information and construction details
-  
+
   This is sample code for the DataDuino.
 
-/*************Details of Code*****************************
+  Details of Code
 
   The DataDuino is an Arduino based SD card datalogger.
   A PCF8563 Realt Time Clock is used to timestamp the data.
@@ -27,7 +27,7 @@
   
   Pin D4 is set up to switch on the power to some IR sensors (for wind direction)
   
-  //Pin A1,A2,A3 are set to digital and return data about wind vane direction (NOT IMPLEMENTED YET)
+  *Pin A1,A2,A3 are set to digital and return data about wind vane direction (NOT IMPLEMENTED YET)
   
   Pin D7 is used as an input to choose calibrate mode
   When in calibrate mode the serial port is read and sample/time/date can be updated
@@ -79,7 +79,7 @@
   
   TO DO
  
- //*********SD CARD DETAILS***************************	
+ // *********SD CARD DETAILS***************************	
  The SD card circuit:
  SD card attached to SPI bus as follows:
  ** MOSI - pin 11
@@ -88,7 +88,7 @@
  ** CS - pin 10
  ** Card detect - pin 6
  
- //************ Real Time Clock code*******************
+ // ************ Real Time Clock code*******************
  A PCF8563 RTC is attached to pins:
  ** A4 - SDA (serial data)
  ** A5 - SDC (serial clock)
@@ -116,7 +116,7 @@
 #include <PinChangeInt.h>  // For additional interrupts
 
 /* Local Application Libraries */
-
+#include "utility.h"
 #include "wind_direction.h"
 
 /************User variables and hardware allocation**********************************************/
@@ -240,9 +240,6 @@ const char initialisesd[] PROGMEM = "Initialising SD card...";
 const char dateerror[] PROGMEM = "Dates are not the same - create new file";
 const char reference[] PROGMEM = "The ref number is:";
 const char noSD[] PROGMEM = "No SD card present";
-
-#define MAX_STRING 80      // Sets the maximum length of string probably could be lower
-char stringBuffer[MAX_STRING];  // A buffer to hold the string when pulled from program memory
 
 /***************************************************
  *  Name:        pulse1
@@ -441,12 +438,14 @@ void setup()
  *  Description: Main application loop.
  *
  ***************************************************/
+
 void loop()
 {
 
   // *********** WIND DIRECTION **************************************  
   // Want to measure the wind direction every second to give good direction analysis
   // This can be checked every second and an average used
+  
   convertWindDirection(analogRead(directionPin));    // Run this every second. It increments the windDirectionArray 
   
   if(aliveFlashCounter>=10)
@@ -546,7 +545,7 @@ void loop()
     }
     else
     {
-       Serial.println(getString(noSD));
+       Serial.println(getProgmemString(noSD));
     }   
     cardDetectOld = digitalRead(cardDetect);  // Store the old value of the card detect
     
@@ -649,11 +648,6 @@ void setupRTC()
   Wire.endTransmission();
 }
 
-// Converts a decimal to BCD (binary coded decimal)
-byte DecToBcd(byte value){
-  return (value / 10 * 16 + value % 10);
-}
-
 //*********** FUNCTION TO INITIALISE THE SD CARD***************
 void initialiseSD()
 {
@@ -679,7 +673,7 @@ void initialiseSD()
   {
     if(debugFlag==HIGH)
     {
-      Serial.println(getString(initialisesd));
+      Serial.println(getProgmemString(initialisesd));
     }
   }
 }
@@ -718,16 +712,16 @@ void createfilename()
     if (!datafile.open(filename, O_RDWR | O_CREAT | O_AT_END)) {
       if(debugFlag==HIGH)
       {
-        Serial.println(getString(erroropen));
+        Serial.println(getProgmemString(erroropen));
       }
     }
     // if the file opened okay, write to it:
-    datafile.println(getString(headers));
+    datafile.println(getProgmemString(headers));
     // close the file:
     datafile.sync();
     if(debugFlag==HIGH)
     {
-      Serial.println(getString(headersOK));
+      Serial.println(getProgmemString(headersOK));
     }
   } 
   else
@@ -755,19 +749,10 @@ void writetoSD()
   else {
     if(debugFlag==HIGH)
     {
-      Serial.println(getString(erroropen));
+      Serial.println(getProgmemString(erroropen));
     }
   }
 }
-
-// Get a string from program memory
-// This routine pulls the string stored in program memory so we can use it
-// It is temporaily stored in the stringBuffer
-char* getString(const char* str) {
-	strcpy_P(stringBuffer, (char*)str);
-	return stringBuffer;
-}
-
 
 // Temperature function outputs float , the actual
 // temperature
@@ -838,7 +823,7 @@ void getData()
               // In this case we have changed the house number, so UPDATE and store in EEPROM
               deviceID[0]=str_buffer[i+1];
               deviceID[1]=str_buffer[i+2];
-              Serial.print(getString(reference));
+              Serial.print(getProgmemString(reference));
               Serial.print(deviceID[0]);
               Serial.println(deviceID[1]);
               EEPROM.write(0,deviceID[0]);
