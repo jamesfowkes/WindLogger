@@ -193,7 +193,13 @@ bool writeToSD(String dataString)
     // if the file is available, write to it:
     if (s_sd.exists(pCurrentFilename))
     {
-        success = s_datafile.open(pCurrentFilename, O_RDWR | O_CREAT | O_AT_END);
+        success = s_datafile.isOpen();
+
+        if (!success)
+        {
+            success = s_datafile.open(pCurrentFilename, O_RDWR | O_CREAT | O_AT_END);
+        }
+
         if(success)
         {
             s_datafile.println(dataString);
