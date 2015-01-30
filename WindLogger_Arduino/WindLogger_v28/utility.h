@@ -1,5 +1,5 @@
-#ifndef _UTILITY__H_
-#define _UTILITY__H_
+#ifndef _UTILITY_H_
+#define _UTILITY_H_
 
 template <typename T>
 T getMaximum(T * array, uint16_t length);

@@ -1,5 +1,5 @@
 /*
- * utility.c
+ * utility.cpp
  * 
  * A collection of generic utility routines
  *
@@ -58,8 +58,6 @@ void fillArray(T * array, T value, uint16_t size)
 }
 
 // Get a string from program memory
-// This routine pulls the string stored in program memory so we can use it
-// It is temporaily stored in the stringBuffer
 #define MAX_STRING 80      // Sets the maximum length of string probably could be lower
 static char s_stringBuffer[MAX_STRING];  // A buffer to hold the string when pulled from program memory
 char* getProgmemString(const char* str) {

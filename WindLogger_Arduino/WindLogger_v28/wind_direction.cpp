@@ -1,5 +1,5 @@
 /*
- * wind_direction.c
+ * wind_direction.cpp
  * 
  * Routines for handling conversion/formatting etc. of wind direction values
  *
