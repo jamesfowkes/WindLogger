@@ -9,7 +9,7 @@ bool initialiseSD(void);
 bool createCSVFileFromDate(int day, int month, int year);
 
 /* Read/write functionality */
-bool writeToSD(String dataString);
+bool writeToSD(String *dataString);
 bool writeToSD(char * pDataChars);
 
 /* Card Detection functionality */

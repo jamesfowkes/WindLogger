@@ -539,7 +539,7 @@ void loop()
             createCSVFileFromDate(rtc.getDay(), rtc.getMonth(), rtc.getYear());
         }
 
-        writeToSD(dataString);
+        writeToSD(&dataString);
 
         // Finish up write routine here:    
         digitalWrite(LEDred, LOW);   // set the LED OFF 

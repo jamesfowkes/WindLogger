@@ -155,7 +155,6 @@ bool createCSVFileFromDate(int day, int month, int year)
                 Serial.println(getProgmemString(s_headersOK)); Serial.flush();
             }
         }
-        
     }
     else if(applicationIsInDebugMode())
     {
@@ -173,10 +172,10 @@ bool writeToSD(char * pDataChars)
 {
     // Alias for writeToSD(String)
     String dataString = String(pDataChars);
-    return writeToSD(dataString);
+    return writeToSD(&dataString);
 }
 
-bool writeToSD(String dataString)
+bool writeToSD(String *dataString)
 {
     if (!sdCardIsPresent()) { return false; }
 
@@ -202,11 +201,11 @@ bool writeToSD(String dataString)
 
         if(success)
         {
-            s_datafile.println(dataString);
+            s_datafile.println(*dataString);
             s_datafile.sync();
 
             if(applicationIsInDebugMode()) { Serial.println(); }
-            Serial.println(dataString); // Always print the CSV line
+            Serial.println(*dataString); // Always print the CSV line
             Serial.flush();
             
         }
